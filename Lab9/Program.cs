@@ -170,10 +170,63 @@ namespace Lab9
                 enumerable.ToList().ForEach(Console.WriteLine);
             }
         }
+
+        static void zad3()
+        {
+            var students = Generator.GenerateStudentsEasy();
+            var groupTopics = new Func<IEnumerable<string>, object>(topics =>
+                from topic in topics
+                group topic by topic
+                into g
+                orderby g.Count() descending
+                select new
+                {
+                    g.Key,
+                    Count = g.Count()
+                });
+                
+            var selection =
+                from student in students
+                from topic in student.Topics
+                group topic by topic into g
+                orderby g.Count() descending 
+                select new
+                {
+                    g.Key,
+                    Count = g.Count()
+                };
+            var genderedSelection =
+                from student in students
+                group student by student.Gender
+                into genderGrouping
+                select new
+                {
+                    genderGrouping.Key,
+                    TopicGroup = from student in genderGrouping
+                        from topic in student.Topics
+                        group topic by topic
+                        into g
+                        orderby g.Count() descending
+                        select new
+                        {
+                            g.Key,
+                            Count = g.Count()
+                        }
+                };
+                
+            selection.ToList().ForEach(Console.WriteLine);
+            foreach (var group in genderedSelection)
+            {
+                Console.WriteLine(group.Key);
+                group.TopicGroup.ToList().ForEach(Console.WriteLine);
+            }
+        }
+
         static void Main(string[] args)
         {
             // zad1();
-            zad2(5);
+            // zad2(5);
+            zad3();
         }
     }
 }
