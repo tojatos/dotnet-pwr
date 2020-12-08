@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 
 namespace Lab9
 {
@@ -13,8 +13,8 @@ namespace Lab9
 
         public Department(int id, string name)
         {
-            this.Id = id;
-            this.Name = name;
+            Id = id;
+            Name = name;
         }
 
         public override string ToString()
@@ -22,6 +22,20 @@ namespace Lab9
             return $"{Id,2}), {Name,11}";
         }
 
+    }
+    
+    public class Topic
+    {
+        public int Id { get; set; }
+        public String Name { get; set; }
+
+        public Topic(int id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+
+        public override string ToString() => $"{Id,2}), {Name,11}";
     }
 
     public enum Gender
@@ -43,13 +57,13 @@ namespace Lab9
         public Student(int id, int index, string name, Gender gender, bool active,
             int departmentId, List<string> topics)
         {
-            this.Id = id;
-            this.Index = index;
-            this.Name = name;
-            this.Gender = gender;
-            this.Active = active;
-            this.DepartmentId = departmentId;
-            this.Topics = topics;
+            Id = id;
+            Index = index;
+            Name = name;
+            Gender = gender;
+            Active = active;
+            DepartmentId = departmentId;
+            Topics = topics;
         }
 
         public override string ToString()
@@ -60,11 +74,40 @@ namespace Lab9
             return result;
         }
     }
+    
+    public class StudentWithTopics
+    {
+        public int Id { get; set; }
+        public int Index { get; set; }
+        public string Name { get; set; }
+        public Gender Gender { get; set; }
+        public bool Active { get; set; }
+        public int DepartmentId { get; set; }
+
+        public List<Topic> Topics { get; set; }
+        public StudentWithTopics(int id, int index, string name, Gender gender, bool active,
+            int departmentId, List<Topic> topics)
+        {
+            Id = id;
+            Index = index;
+            Name = name;
+            Gender = gender;
+            Active = active;
+            DepartmentId = departmentId;
+            Topics = topics;
+        }
+
+        public override string ToString()
+        {
+            var result = $"{Id,2}) {Index,5}, {Name,11}, {Gender,6},{(Active ? "active" : "no active"),9},{DepartmentId,2},\n --- topics: ";
+            return Topics.Aggregate(result, (current, str) => $"{current}\n --- {str}, ");
+        }
+    }
     public static class Generator
     {
         public static int[] GenerateIntsEasy()
         {
-            return new int[] { 5, 3, 9, 7, 1, 2, 6, 7, 8 };
+            return new[] { 5, 3, 9, 7, 1, 2, 6, 7, 8 };
         }
 
         public static int[] GenerateIntsMany()
@@ -78,7 +121,8 @@ namespace Lab9
 
         public static List<string> GenerateStringsEasy()
         {
-            return new List<string>() {
+            return new List<string>
+            {
                 "Nowak",
                 "Kowalski",
                 "Schmidt",
@@ -89,7 +133,8 @@ namespace Lab9
         }
         public static List<Student> GenerateStudentsEasy()
         {
-            return new List<Student>() {
+            return new List<Student>
+            {
             new Student(1,12345,"Nowak", Gender.Female,true,1,
                     new List<string>{"C#","PHP","algorithms"}),
             new Student(2, 13235, "Kowalski", Gender.Male, true,1,
@@ -119,7 +164,8 @@ namespace Lab9
 
         public static List<Department> GenerateDepartmentsEasy()
         {
-            return new List<Department>() {
+            return new List<Department>
+            {
             new Department(1,"Computer Science"),
             new Department(2,"Electronics"),
             new Department(3,"Mathematics"),
@@ -134,7 +180,7 @@ namespace Lab9
         static void zad1()
         {
             // var path = Console.ReadLine();
-            var path = "big.txt";
+            var path = "D:/Scripts/dotnet-pwr/Lab9/big.txt";
             var words = File.ReadAllText(path).Split();
 
             var selection =
@@ -222,11 +268,37 @@ namespace Lab9
             }
         }
 
+        static void zad4()
+        {
+            var students = Generator.GenerateStudentsEasy();
+            var topicsStrings =
+                from student in students
+                from topic in student.Topics
+                select topic;
+            var topicStringsDistinct = topicsStrings.Distinct().ToList();
+            var studentsWithTopics =
+                from student in students
+                select new StudentWithTopics(student.Id, student.Index, student.Name, student.Gender, student.Active,
+                    student.DepartmentId,
+                    (from topic in student.Topics
+                    select new Topic(topicStringsDistinct.FindIndex(s => s == topic), topic)).ToList()
+                );
+            studentsWithTopics.ToList().ForEach(Console.WriteLine);
+        }
+
+        static void zad5()
+        {
+            var ints = (int[]) typeof(Generator).GetMethod("GenerateIntsEasy")?.Invoke(null, null);
+            ints!.ToList().ForEach(Console.WriteLine);
+        }
+
         static void Main(string[] args)
         {
             // zad1();
             // zad2(5);
-            zad3();
+            // zad3();
+            // zad4();
+            zad5();
         }
     }
 }
