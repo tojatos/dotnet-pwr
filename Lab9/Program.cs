@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Lab9
@@ -220,17 +221,6 @@ namespace Lab9
         static void zad3()
         {
             var students = Generator.GenerateStudentsEasy();
-            var groupTopics = new Func<IEnumerable<string>, object>(topics =>
-                from topic in topics
-                group topic by topic
-                into g
-                orderby g.Count() descending
-                select new
-                {
-                    g.Key,
-                    Count = g.Count()
-                });
-                
             var selection =
                 from student in students
                 from topic in student.Topics
@@ -288,8 +278,7 @@ namespace Lab9
 
         static void zad5()
         {
-            var ints = (int[]) typeof(Generator).GetMethod("GenerateIntsEasy")?.Invoke(null, null);
-            ints!.ToList().ForEach(Console.WriteLine);
+            typeof(Program).GetMethod("zad2", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, new object[]{ 3 });
         }
 
         static void Main(string[] args)
